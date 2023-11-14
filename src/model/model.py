@@ -80,8 +80,8 @@ def train_cp(model, x_train, y_train, x_val, y_val, epochs, batch_size, model_pa
     Returns:
     - keras.callbacks.History: History of the training process.
     """
-    lr_scheduler = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=10, min_lr=0.000001)
-    early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)
+    lr_scheduler = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=25, min_lr=0.000001)
+    early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
     model_checkpoint_callback = keras.callbacks.ModelCheckpoint(filepath=model_path, 
                                                                 monitor='val_accuracy', save_weights_only=True, 
                                                                 mode='max', save_best_only=True)

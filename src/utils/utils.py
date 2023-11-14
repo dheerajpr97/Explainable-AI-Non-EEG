@@ -3,6 +3,8 @@ import numpy as np
 import pickle
 import keras
 from sklearn.model_selection import train_test_split
+import seaborn as sns
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 import pandas as pd
 
@@ -112,3 +114,51 @@ def load_dataframe_from_pickle(file_path):
         df = pickle.load(file)
 
     return df
+
+def preprocess_test_data(test_data):
+    """
+    Preprocesses the given test data by subtracting the mean and dividing by the standard deviation.
+
+    Parameters:
+        test_data (ndarray): The test data to be preprocessed.
+
+    Returns:
+        ndarray: The preprocessed test data.
+    """
+    # Normalize the test data
+    test_data = (test_data - test_data.mean()) / test_data.std()
+ 
+    # Reshape the test data to include an additional dimension
+    test_data = test_data.reshape(test_data.shape + (1,))
+    
+    return test_data
+
+def evaluate_test_data(test_data, test_labels, model):
+    """
+    Evaluate the test data using the trained model.
+    
+    Args:
+        test_data (numpy.ndarray): The test data.
+        test_labels (numpy.ndarray): The labels for the test data.
+        model (object): The trained model.
+    """
+    # Preprocess the test data
+    test_data = preprocess_test_data(test_data)
+    
+    # Predict the labels for the test data
+    pred = model.predict(test_data)
+    
+    # Convert the predicted probabilities to class labels
+    y_pred = np.argmax(pred, axis=1)
+    
+    # Compute the confusion matrix
+    cm = confusion_matrix(np.int16(test_labels), y_pred, normalize='true')
+    
+    # Compute the accuracy
+    acc = accuracy_score(np.int16(test_labels), y_pred) * 100
+    
+    # Print the accuracy
+    print('Accuracy:', acc)
+    
+    # Plot the normalized confusion matrix
+    sns.heatmap(cm/np.sum(cm, axis=1), annot=True, fmt='.2%', cmap='Blues')

@@ -32,13 +32,13 @@ def main(args):
     cross_val = TrainTestSplitter(subjects=SUBJECTS, labels=LABELS)            
     if args.cross_val == 'LOSO':            
         train_df, test_df = cross_val.train_test_loso(data_set, subject_index=args.sub_index)
-        train_filename = f"train_data_{args.cross_val}_{args.sub_index}.pkl"
-        test_filename = f"test_data_{args.cross_val}_{args.sub_index}.pkl"
+        train_filename = f"train_data_{args.cross_val}_{args.sub_index}_{args.samp_freq}Hz.pkl"
+        test_filename = f"test_data_{args.cross_val}_{args.sub_index}_{args.samp_freq}Hz.pkl"
 
     else:
         train_df, test_df = cross_val.train_test_losego(data_set, seg_index=args.seg_index, num_seg=args.num_seg)
-        train_filename = f"train_data_{args.cross_val}_{args.seg_index}_{args.num_seg}.pkl"
-        test_filename = f"test_data_{args.cross_val}_{args.seg_index}_{args.num_seg}.pkl"
+        train_filename = f"train_data_{args.cross_val}_{args.seg_index}_{args.num_seg}_{args.samp_freq}Hz.pkl"
+        test_filename = f"test_data_{args.cross_val}_{args.seg_index}_{args.num_seg}_{args.samp_freq}Hz.pkl"
 
     train_path = os.path.join(SAVED_DATASET_DIR, train_filename)            
     test_path = os.path.join(SAVED_DATASET_DIR, test_filename)
@@ -57,9 +57,9 @@ def main(args):
     input_shape = train_data.shape[1:]
 
     if args.cross_val == 'LOSO':
-        model_path = os.path.join(SAVED_MODEL_DIR, f"model_{args.cross_val}_{args.subject_index}.h5")
+        model_path = os.path.join(SAVED_MODEL_DIR, f"model_{args.cross_val}_{args.sub_index}_{args.samp_freq}Hz.h5")
     else:
-        model_path = os.path.join(SAVED_MODEL_DIR, f"model_{args.cross_val}_{args.seg_index}_{args.num_seg}.h5")
+        model_path = os.path.join(SAVED_MODEL_DIR, f"model_{args.cross_val}_{args.seg_index}_{args.num_seg}_{args.samp_freq}Hz.h5")
 
     model = ConvModel(input_shape=input_shape, nb_classes=len(LABELS_DICT.values()))
     optimizer = tf.keras.optimizers.SGD(learning_rate=args.lr, momentum=0.8)
@@ -74,17 +74,18 @@ if __name__ == "__main__":
         #if i == "fully_connected_patches_scale_diff_all_shapes__15_kps.pkl":
     frame_rate = 60
     max_size = 360
-    dataset_to_train = "processed_dataframe_allmod_8Hz.pkl"
+    dataset_to_train = "processed_dataframe_allmod.pkl"
     
     parser = argparse.ArgumentParser(description='Training configuration')
     parser.add_argument('--f', type=str, default=dataset_to_train, help="train dataset file name")
+    parser.add_argument('--samp_freq', type=int, default=1, help="sampling frequency in Hz")
     parser.add_argument('--frame_rate', type=int, default=frame_rate, help="frame size for each segment")
     parser.add_argument('--max_size', type=int, default=max_size, help="maximum size for interpolation")
     parser.add_argument('--m', type=str, default=f'ConvModel-{dataset_to_train}', help="model name")
     parser.add_argument('--device', type=str, default='cuda', help="cuda / cpu")
     parser.add_argument('--batch', type=int, default=32, help="batch size")
-    parser.add_argument('--e', type=int, default=100, help="number of epochs")
-    parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")#1e-3, 5.e-3
+    parser.add_argument('--e', type=int, default=250, help="number of epochs")
+    parser.add_argument('--lr', type=float, default=1e-4, help="learning rate")#1e-3, 5.e-3
     parser.add_argument('--optimizer', type=str, default='Adam', help="optimizer")#1e-3, 5.e-3
     parser.add_argument('--model_dir', type=str, default="models/", help="path to save model")
     parser.add_argument('--cross_val', type=str, default='LOSO', help="cross validation method (LOSO / LOSegO)")

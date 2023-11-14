@@ -39,7 +39,7 @@ class TrainTestSplitter:
                 data_all = np.array([np.array(xi) for xi in data_all])
 
                 # Select the test data based on the segment index and number of segments
-                data_test = data_all[seg_index * 8:(seg_index * 8) + num_seg]
+                data_test = data_all[seg_index:(seg_index) + num_seg] # *8
 
                 # Remove the test data from the training data
                 data_train = np.delete(data_all, seg_index, axis=0)
