@@ -162,3 +162,4 @@ cython_debug/
 data/created_dataset/*
 saved_models/*
 config/config.yaml
+.ipynb
