@@ -14,7 +14,7 @@ class TrainTestSplitter:
         self.subjects = subjects
         self.labels = labels
 
-    def train_test_losego(self, df, seg_index=0, num_seg=1):
+    def train_test_losego(self, df, seg_index=0, num_seg=1, samp_freq=1):
         """
         Leave one segment out for all modalities.
 
@@ -39,7 +39,12 @@ class TrainTestSplitter:
                 data_all = np.array([np.array(xi) for xi in data_all])
 
                 # Select the test data based on the segment index and number of segments
-                data_test = data_all[seg_index:(seg_index) + num_seg] # *8
+                if samp_freq == 1:
+                    #print('Sampling frequency is 1')
+                    data_test = data_all[seg_index:(seg_index) + num_seg] 
+                elif samp_freq == 8: # 
+                    #print('Sampling frequency is 8')
+                    data_test = data_all[seg_index*samp_freq:(seg_index*samp_freq) + num_seg]
 
                 # Remove the test data from the training data
                 data_train = np.delete(data_all, seg_index, axis=0)

@@ -94,6 +94,7 @@ def train_cp(model, x_train, y_train, x_val, y_val, epochs, batch_size, model_pa
     # Save the model checkpoints
     if not os.path.exists(model_path):
         os.makedirs(model_path)
-    
+        
+    model.model.load_weights(model_path)
     model.model.save(model_path)
     print('Model saved')
