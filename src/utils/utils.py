@@ -5,8 +5,9 @@ import keras
 from sklearn.model_selection import train_test_split
 import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
-
 import pandas as pd
+import matplotlib.pyplot as plt
+import h5py
 
 def load_csv_to_dataframe(file_path, dropna=True):
     """
@@ -143,22 +144,79 @@ def evaluate_test_data(test_data, test_labels, model):
         model (object): The trained model.
     """
     # Preprocess the test data
-    test_data = preprocess_test_data(test_data)
+    preprocessed_test_data = preprocess_test_data(test_data)
     
     # Predict the labels for the test data
-    pred = model.predict(test_data)
+    predictions = model.predict(preprocessed_test_data)
     
     # Convert the predicted probabilities to class labels
-    y_pred = np.argmax(pred, axis=1)
+    predicted_labels = np.argmax(predictions, axis=1)
+    
+    # Define class labels for the confusion matrix
+    class_labels = {0: 'Relax', 1: 'PhysicalStress', 2: 'CognitiveStress', 3: 'EmotionalStress'}
     
     # Compute the confusion matrix
-    cm = confusion_matrix(np.int16(test_labels), y_pred, normalize='true')
+    confusion_mat = confusion_matrix(np.int16(test_labels), predicted_labels, normalize='true')
     
     # Compute the accuracy
-    acc = accuracy_score(np.int16(test_labels), y_pred) * 100
+    accuracy = accuracy_score(np.int16(test_labels), predicted_labels) * 100
     
     # Print the accuracy
-    print('Accuracy:', acc)
+    print('Accuracy:', accuracy)
     
     # Plot the normalized confusion matrix
-    sns.heatmap(cm/np.sum(cm, axis=1), annot=True, fmt='.2%', cmap='Blues')
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(confusion_mat / np.sum(confusion_mat, axis=1), annot=True, fmt='.2%', cmap='Blues')
+    plt.title('Normalized Confusion Matrix')
+    
+    plt.yticks(ticks=[0, 1, 2, 3], labels=[class_labels[i] for i in range(4)], rotation=0, va='center')
+    plt.xticks(ticks=[0, 1, 2, 3], labels=[class_labels[i] for i in range(4)], ha='center')
+    
+    plt.show()
+
+def save_array_to_hdf5(filepath, data, dataset_name='data'):
+    """
+    Save a NumPy 2D array to an HDF5 file.
+
+    Args:
+        filepath (str): The path to the HDF5 file.
+        data (numpy.ndarray): The 2D array to be saved.
+        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
+    """
+    with h5py.File(filepath, 'w') as hf:
+        hf.create_dataset(dataset_name, data=data)
+
+def load_array_from_hdf5(filepath, dataset_name='data'):
+    """
+    Load a NumPy 2D array from an HDF5 file.
+
+    Args:
+        filepath (str): The path to the HDF5 file.
+        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
+
+    Returns:
+        numpy.ndarray: The loaded 2D array.
+    """
+    with h5py.File(filepath, 'r') as hf:
+        data = hf[dataset_name][:]
+    return data
+
+def create_prediction_dataframe(test_data, predicted_label, class_labels):
+    """
+    Create a DataFrame to store predictions.
+
+    Args:
+    - test_data (numpy.ndarray): The input test data.
+    - predicted_label (int): The predicted label.
+    - class_labels (list): List of class labels.
+
+    Returns:
+    - pandas.DataFrame: The prediction DataFrame.
+    """
+    pred_dict = {
+        'Data': [test_data.squeeze()],
+        'Label': predicted_label,
+        'Label_ori': class_labels[predicted_label[0]]
+    }
+    pred_df = pd.DataFrame.from_dict(pred_dict)
+    return pred_df
