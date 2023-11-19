@@ -46,6 +46,84 @@ def dataframe_to_array(df):
 
     return data, labels
 
+def save_dataframe_to_pickle(df, file_path):
+    """
+    Save a DataFrame to a pickle file with correct data types.
+
+    Parameters:
+    - df (pd.DataFrame): DataFrame to be saved.
+    - file_path (str): File path where the pickle file will be saved.
+    """
+    # Convert the 'Data' column to a list of lists
+    #df['Data'] = df['Data'].apply(lambda x: eval(x))
+
+    # Save the DataFrame to a pickle file
+    with open(file_path, 'wb') as file:
+        pickle.dump(df, file)
+
+def load_dataframe_from_pickle(file_path):
+    """
+    Load a DataFrame from a pickle file with correct data types.
+
+    Parameters:
+    - file_path (str): File path of the pickle file.
+
+    Returns:
+    - pd.DataFrame: Loaded DataFrame.
+    """
+    # Load the DataFrame from the pickle file
+    with open(file_path, 'rb') as file:
+        df = pickle.load(file)
+
+    return df
+
+def save_array_to_hdf5(filepath, data, dataset_name='data'):
+    """
+    Save a NumPy 2D array to an HDF5 file.
+
+    Args:
+        filepath (str): The path to the HDF5 file.
+        data (numpy.ndarray): The 2D array to be saved.
+        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
+    """
+    with h5py.File(filepath, 'w') as hf:
+        hf.create_dataset(dataset_name, data=data)
+
+def load_array_from_hdf5(filepath, dataset_name='data'):
+    """
+    Load a NumPy 2D array from an HDF5 file.
+
+    Args:
+        filepath (str): The path to the HDF5 file.
+        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
+
+    Returns:
+        numpy.ndarray: The loaded 2D array.
+    """
+    with h5py.File(filepath, 'r') as hf:
+        data = hf[dataset_name][:]
+    return data
+
+def create_prediction_dataframe(test_data, predicted_label, class_labels):
+    """
+    Create a DataFrame to store predictions.
+
+    Args:
+    - test_data (numpy.ndarray): The input test data.
+    - predicted_label (int): The predicted label.
+    - class_labels (list): List of class labels.
+
+    Returns:
+    - pandas.DataFrame: The prediction DataFrame.
+    """
+    pred_dict = {
+        'Data': [test_data.squeeze()],
+        'Label': predicted_label,
+        'Label_ori': class_labels[predicted_label[0]]
+    }
+    pred_df = pd.DataFrame.from_dict(pred_dict)
+    return pred_df
+
 def preprocess_train_val(data, labels, test_size=0.3):
     """
     Preprocess data and labels, and split into train and validation sets.
@@ -84,37 +162,6 @@ def preprocess_train_val(data, labels, test_size=0.3):
     x_val = x_val.reshape(x_val.shape + (1,))
 
     return x_train, Y_train, x_val, Y_val
-
-def save_dataframe_to_pickle(df, file_path):
-    """
-    Save a DataFrame to a pickle file with correct data types.
-
-    Parameters:
-    - df (pd.DataFrame): DataFrame to be saved.
-    - file_path (str): File path where the pickle file will be saved.
-    """
-    # Convert the 'Data' column to a list of lists
-    #df['Data'] = df['Data'].apply(lambda x: eval(x))
-
-    # Save the DataFrame to a pickle file
-    with open(file_path, 'wb') as file:
-        pickle.dump(df, file)
-
-def load_dataframe_from_pickle(file_path):
-    """
-    Load a DataFrame from a pickle file with correct data types.
-
-    Parameters:
-    - file_path (str): File path of the pickle file.
-
-    Returns:
-    - pd.DataFrame: Loaded DataFrame.
-    """
-    # Load the DataFrame from the pickle file
-    with open(file_path, 'rb') as file:
-        df = pickle.load(file)
-
-    return df
 
 def preprocess_test_data(test_data, train_data_mean, train_data_std):
     """
@@ -175,50 +222,3 @@ def evaluate_test_data(test_data, test_labels, model, train_data_mean, train_dat
     plt.xticks(ticks=[0, 1, 2, 3], labels=[class_labels[i] for i in range(4)], ha='center')
     
     plt.show()
-
-def save_array_to_hdf5(filepath, data, dataset_name='data'):
-    """
-    Save a NumPy 2D array to an HDF5 file.
-
-    Args:
-        filepath (str): The path to the HDF5 file.
-        data (numpy.ndarray): The 2D array to be saved.
-        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
-    """
-    with h5py.File(filepath, 'w') as hf:
-        hf.create_dataset(dataset_name, data=data)
-
-def load_array_from_hdf5(filepath, dataset_name='data'):
-    """
-    Load a NumPy 2D array from an HDF5 file.
-
-    Args:
-        filepath (str): The path to the HDF5 file.
-        dataset_name (str, optional): The name of the dataset in the HDF5 file (default: 'data').
-
-    Returns:
-        numpy.ndarray: The loaded 2D array.
-    """
-    with h5py.File(filepath, 'r') as hf:
-        data = hf[dataset_name][:]
-    return data
-
-def create_prediction_dataframe(test_data, predicted_label, class_labels):
-    """
-    Create a DataFrame to store predictions.
-
-    Args:
-    - test_data (numpy.ndarray): The input test data.
-    - predicted_label (int): The predicted label.
-    - class_labels (list): List of class labels.
-
-    Returns:
-    - pandas.DataFrame: The prediction DataFrame.
-    """
-    pred_dict = {
-        'Data': [test_data.squeeze()],
-        'Label': predicted_label,
-        'Label_ori': class_labels[predicted_label[0]]
-    }
-    pred_df = pd.DataFrame.from_dict(pred_dict)
-    return pred_df

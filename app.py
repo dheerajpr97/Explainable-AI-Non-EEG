@@ -51,7 +51,6 @@ if uploaded_file is not None:
         st.write(f"Predicted Class: {class_labels[predicted_label[0]]}")
         st.write(f"Predicted Probability: {prediction[0][predicted_label[0]]}")
 
-    #if display_button:
         # Create a prediction DataFrame using the function
         prediction_df = create_prediction_dataframe(test_data, predicted_label, class_labels)
 
