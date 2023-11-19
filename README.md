@@ -15,12 +15,15 @@ Ensure that you have the following installed:
 ### Installation
 
 1. Clone the repository:
+
     ```git clone https://github.com/dheerajpr97/Explainable-AI-Non-EEG.git```
 
 2. Navigate to the cloned repository directory:
+
     ```cd EXPLAINABLE-AI-NON-EEG```
 
 3. Install the necessary Python packages:
+
     ```pip install -r requirements.txt```
 
 ## Grad-CAM Visualization
