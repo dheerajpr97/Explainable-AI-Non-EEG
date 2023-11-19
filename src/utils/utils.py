@@ -116,25 +116,27 @@ def load_dataframe_from_pickle(file_path):
 
     return df
 
-def preprocess_test_data(test_data):
+def preprocess_test_data(test_data, train_data_mean, train_data_std):
     """
-    Preprocesses the given test data by subtracting the mean and dividing by the standard deviation.
+    Normalize the test data using the mean and standard deviation of the training data.
 
-    Parameters:
-        test_data (ndarray): The test data to be preprocessed.
+    Args:
+    - test_data (numpy.ndarray): The test dataset to be normalized.
+    - train_data_mean (float): The mean value of the training data.
+    - train_data_std (float): The standard deviation of the training data.
 
     Returns:
-        ndarray: The preprocessed test data.
+    - numpy.ndarray: The normalized test data.
     """
     # Normalize the test data
-    test_data = (test_data - test_data.mean()) / test_data.std()
+    test_data = (test_data - train_data_mean) / train_data_std
  
     # Reshape the test data to include an additional dimension
     test_data = test_data.reshape(test_data.shape + (1,))
     
     return test_data
 
-def evaluate_test_data(test_data, test_labels, model):
+def evaluate_test_data(test_data, test_labels, model, train_data_mean, train_data_std):
     """
     Evaluate the test data using the trained model.
     
@@ -144,7 +146,7 @@ def evaluate_test_data(test_data, test_labels, model):
         model (object): The trained model.
     """
     # Preprocess the test data
-    preprocessed_test_data = preprocess_test_data(test_data)
+    preprocessed_test_data = preprocess_test_data(test_data, train_data_mean, train_data_std)
     
     # Predict the labels for the test data
     predictions = model.predict(preprocessed_test_data)

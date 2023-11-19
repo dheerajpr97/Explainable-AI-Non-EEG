@@ -91,7 +91,7 @@ class GradCAMVisualizer:
             plt.show()
             
 
-    def vis_grad_cam_all_modal(self, test_sample, class_name='Relax_1', color=False, plot=True):
+    def vis_grad_cam_all_modal(self, test_sample, color=False, plot=True):
             """
             Generates a Grad-CAM visualization for all modalities of a given test sample.
             
@@ -157,7 +157,7 @@ class GradCAMVisualizer:
 
                 axs1 = axs.imshow(cv2.cvtColor(normalized_hm_vis.transpose(1, 0, 2), cv2.COLOR_BGR2RGB), cmap='jet', 
                                 vmin=0, vmax=1)
-                axs.set_title(f'Normalized Grad-CAM | {y_test_ori}')
+                axs.set_title(f'Normalized Grad-CAM | {y_test_ori.values[0]}')
                 fig.colorbar(axs1, shrink=0.38)
 
                 axs.set_aspect('equal')
@@ -179,7 +179,7 @@ class GradCAMVisualizer:
             # Loop through segments per subject
             for i in range(label, 140, 7):
                 # Calculate Grad-CAM for each segment
-                norm_hm.append(self.vis_grad_cam_all_modal(df[i:i+1], subject=SUBJECTS[0], color=False, plot=False))
+                norm_hm.append(self.vis_grad_cam_all_modal(df[i:i+1], color=False, plot=False))
             
             # Calculate the average Grad-CAM
             label_avg = np.mean(norm_hm, axis=0)
