@@ -1,5 +1,6 @@
-import numpy as np
 import os
+
+import numpy as np
 
 LABELS = ['Relax_1', 'Relax_2', 'Relax_3', 'Relax_4', 'PhysicalStress', 'CognitiveStress', 'EmotionalStress']
 LABELS_DICT = {0: 'Relax', 1: 'PhysicalStress', 2: 'CognitiveStress', 3: 'EmotionalStress'}

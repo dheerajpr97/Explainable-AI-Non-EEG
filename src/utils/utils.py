@@ -1,13 +1,13 @@
-import pandas as pd
-import numpy as np
 import pickle
+
+import h5py
 import keras
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix
-import pandas as pd
-import matplotlib.pyplot as plt
-import h5py
+from sklearn.model_selection import train_test_split
 
 def load_csv_to_dataframe(file_path, dropna=True):
     """
@@ -41,7 +41,6 @@ def dataframe_to_array(df):
     - np.ndarray, np.ndarray: Arrays of data and labels.
     """
     data = np.array([np.array(xi, dtype='float32') for xi in df['Data']])
-    #data_mean = np.mean(data, axis=1)
     labels = np.array(df['Label'])
 
     return data, labels
@@ -54,8 +53,6 @@ def save_dataframe_to_pickle(df, file_path):
     - df (pd.DataFrame): DataFrame to be saved.
     - file_path (str): File path where the pickle file will be saved.
     """
-    # Convert the 'Data' column to a list of lists
-    #df['Data'] = df['Data'].apply(lambda x: eval(x))
 
     # Save the DataFrame to a pickle file
     with open(file_path, 'wb') as file:
@@ -103,6 +100,8 @@ def load_array_from_hdf5(filepath, dataset_name='data'):
     with h5py.File(filepath, 'r') as hf:
         data = hf[dataset_name][:]
     return data
+
+
 
 def create_prediction_dataframe(test_data, predicted_label, class_labels):
     """

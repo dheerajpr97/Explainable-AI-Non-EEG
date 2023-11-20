@@ -1,9 +1,11 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from scipy.interpolate import interp1d
 
+from src.constants.constants import (LABELS, MODALS, MODALS_1, MODALS_2,
+                                     SUBJECTS)
 from src.utils.utils import load_csv_to_dataframe
-from src.constants.constants import LABELS, SUBJECTS, MODALS, MODALS_1, MODALS_2
+
 
 class DataframePrepAllMod:
     def __init__(self, subjects, modals, modals_1, modals_2, hr_spo2_file, acc_temp_eda_file, label, frame_rate=60, max_size=360):

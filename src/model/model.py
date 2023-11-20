@@ -1,7 +1,10 @@
+import os
+
 import tensorflow as tf
 from tensorflow import keras
-import os
+
 from src.constants.constants import ROOT_DIR
+
 
 class ConvModel:
     def __init__(self, input_shape, nb_classes):

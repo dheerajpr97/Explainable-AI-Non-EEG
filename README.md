@@ -17,19 +17,19 @@ Ensure that you have the following installed:
 1. Clone the repository:
 
     ```sh
-        git clone https://github.com/dheerajpr97/Explainable-AI-Non-EEG.git
+    git clone https://github.com/dheerajpr97/Explainable-AI-Non-EEG.git
     ```
 
 2. Navigate to the cloned repository directory:
 
     ```sh
-        cd EXPLAINABLE-AI-NON-EEG
+    cd EXPLAINABLE-AI-NON-EEG
     ```
 
 3. Install the necessary Python packages:
 
     ```sh
-        pip install -r requirements.txt
+    pip install -r requirements.txt
     ```
 
 ## Grad-CAM Visualization
@@ -65,13 +65,13 @@ This repo also includes a Dockerfile which allows you to build a Docker image of
 To build the Docker image, ensure you have Docker installed and then run the following command from the project's root directory:
 
 ```sh
-    docker build -t explainable-ai-non-eeg . 
+docker build -t explainable-ai-non-eeg . 
 ```
 
 ### Running the Docker Container
 
 ```sh
-    docker run -p 8501:8501 explainable-ai-non-eeg
+docker run -p 8501:8501 explainable-ai-non-eeg
 ```
 
 ### Accessing the Streamlit App

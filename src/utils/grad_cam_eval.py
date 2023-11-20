@@ -1,9 +1,12 @@
 import cv2
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import tensorflow as tf
 from tensorflow import keras
-from src.constants import SUBJECTS, LABELS, MODALS, TRAIN_DATA_MEAN, TRAIN_DATA_STD
+
+from src.constants import (LABELS, MODALS, SUBJECTS, TRAIN_DATA_MEAN,
+                           TRAIN_DATA_STD)
+
 
 class GradCAMVisualizer:
     def __init__(self, model, model_layer, modals, labels):

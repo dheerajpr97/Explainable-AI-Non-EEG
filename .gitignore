@@ -160,6 +160,7 @@ cython_debug/
 #.idea/
 
 data/created_dataset/*
+!data/created_dataset/test_data_LOSegO_4_1_1Hz.pkl
 saved_models/*
-config/config.yaml
-.ipynb
+!saved_models/model.h5
+notebooks/training.ipynb
