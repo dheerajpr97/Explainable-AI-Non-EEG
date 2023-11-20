@@ -1,9 +1,18 @@
-FROM python:3.8-slim-buster
+FROM python:3.10-slim-buster
 
-RUN apt update -y && apt install awscli -y 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    awscli \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY . /app
+
 RUN pip install -r requirements.txt
 
-CMD ["python3", "app_flask.py"]
+EXPOSE 8501
+
+CMD ["streamlit", "run" , "./app.py"]

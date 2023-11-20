@@ -8,6 +8,9 @@ from src.utils.grad_cam_pred import GradCAMVisualizer
 from src.utils.utils import load_array_from_hdf5, create_prediction_dataframe
 import datetime
 
+# Set the device to CPU to predict on local machine
+tf.config.set_visible_devices([], 'GPU')
+
 # Load your trained model, modals, and labels
 MODEL_PATH = os.path.join(SAVED_MODEL_DIR, 'model.h5')
 modals = MODALS
@@ -32,7 +35,6 @@ if uploaded_file is not None:
 
     # Create buttons for "Predict" and "Display"
     predict_button = st.button("Predict and Display")
-    #display_button = st.button("")
 
     if predict_button:
         # Perform Grad-CAM visualization with prediction
@@ -44,15 +46,17 @@ if uploaded_file is not None:
         time_diff = end - start
         st.write("Time taken to predict: ", time_diff.total_seconds(), " sec")
 
-        predicted_label = np.argmax(prediction, axis=1)
+        predicted_label_index = np.argmax(prediction, axis=1)
+        predicted_label = class_labels[predicted_label_index[0]]
+        predicted_prob = prediction[0][predicted_label_index[0]]
 
         # Display predicted class
         st.subheader("Predicted Class")
-        st.write(f"Predicted Class: {class_labels[predicted_label[0]]}")
-        st.write(f"Predicted Probability: {prediction[0][predicted_label[0]]}")
+        st.write(f"Predicted Class: {predicted_label}")
+        st.write(f"Predicted Probability: {predicted_prob:.3f}")
 
         # Create a prediction DataFrame using the function
-        prediction_df = create_prediction_dataframe(test_data, predicted_label, class_labels)
+        prediction_df = create_prediction_dataframe(test_data, predicted_label_index, class_labels)
 
         # Create a GradCAMVisualizer instance
         visualizer = GradCAMVisualizer(model, ACTIVATION_LAYER_NAME, MODALS, LABELS)
