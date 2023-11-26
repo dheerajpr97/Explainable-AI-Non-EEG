@@ -27,29 +27,35 @@ class GradCAMVisualizer:
     @staticmethod
     def preprocess_data(test_df):
         """
-        Preprocess the test data.
-        
+        Preprocesses the test data.
+
         Args:
         - test_df: The test dataframe.
-        
-        Returns:
-        - Preprocessed test data.
-        """
-        x_test = np.array([np.array(xi, dtype='float32') for xi in test_df['Data'].values[0]])
-        y_test = test_df['Label']
-        y_test_ori = test_df['Label_ori']
-        
-        x_test = (x_test - TRAIN_DATA_MEAN)/(TRAIN_DATA_STD)
-        x_test = x_test.reshape(x_test.shape + (1,))
-        
-        return x_test, y_test, y_test_ori
 
-    def vis_grad_cam_one_modal(self, test_sample, label_index=0): 
+        Returns:
+        - Tuple containing preprocessed test feature, test label, and test label_ori.
+        """
+        # Convert each row of the 'Data' column to a numpy array of type float32
+        test_feature = np.array([np.array(xi, dtype='float32') for xi in test_df['Data'].values[0]])
+        
+        # Extract the 'Label' and 'Label_ori' columns from the test dataframe
+        test_label = test_df['Label']
+        test_label_ori = test_df['Label_ori']
+
+        # Normalize the test feature using the mean and standard deviation of the training data
+        test_feature = (test_feature - TRAIN_DATA_MEAN) / TRAIN_DATA_STD
+        
+        # Reshape the test feature to add a dimension for compatibility with the model
+        test_feature = test_feature.reshape(test_feature.shape + (1,))
+
+        return test_feature, test_label, test_label_ori
+
+    def vis_grad_cam_one_modal(self, test_df, label_index=0): 
         """
         Plot Grad-CAM visualization for a single test sample.
 
         Args:
-        - test_sample: The test data.
+        - test_df: The test data.
         - label_index: The index of the label to visualize (default: 0).
         """       
         # Get the output of the last convolutional layer
@@ -60,17 +66,17 @@ class GradCAMVisualizer:
         softmax_weight = self.model.get_weights()[-2]
 
         # Iterate over each test sample
-        for row in range(len(test_sample)):
+        for row in range(len(test_df)):
             # Preprocess the test data
-            x_test, y_test, y_test_ori = self.preprocess_data(test_sample[row:row+1])
-            x_test = np.expand_dims(x_test, axis=0)
+            test_feature, test_label, test_label_ori = self.preprocess_data(test_df[row:row+1])
+            test_feature = np.expand_dims(test_feature, axis=0)
             # Get the output of the last convolutional layer for the test sample
-            last_conv = get_last_conv([x_test])[0]
+            last_conv = get_last_conv([test_feature])[0]
             # Get the softmax output for the test sample
-            softmax = get_softmax([x_test])[0]         
+            softmax = get_softmax([test_feature])[0]         
             # Compute the class activation map (CAM)
             CAM = np.dot(last_conv, softmax_weight)
-            x_test = (x_test * TRAIN_DATA_STD) + TRAIN_DATA_MEAN
+            test_feature = (test_feature * TRAIN_DATA_STD) + TRAIN_DATA_MEAN
 
             num_rows = 5
             num_cols = 2
@@ -83,10 +89,10 @@ class GradCAMVisualizer:
                 normalized_CAM = (CAM - CAM.min(axis=1, keepdims=True)) / (CAM.max(axis=1, keepdims=True) - CAM.min(axis=1, keepdims=True))
 
                 plt.subplot(num_rows, num_cols, plot_counter)
-                plt.title(f"Modality: {self.modals[modal]}  Likelihood of label: {y_test_ori[label_index]}: {softmax[0][int(y_test[label_index])]:.2f}")
-                plt.plot(x_test[0, :, modal].squeeze())
-                plt.scatter(np.arange(len(x_test[0])), x_test[0, :, modal], 
-                            cmap='hot_r', c=normalized_CAM[0, :, modal, int(y_test[label_index])], s=100)
+                plt.title(f"Modality: {self.modals[modal]}  Likelihood of label: {test_label_ori[label_index]}: {softmax[0][int(test_label[label_index])]:.2f}")
+                plt.plot(test_feature[0, :, modal].squeeze())
+                plt.scatter(np.arange(len(test_feature[0])), test_feature[0, :, modal], 
+                            cmap='hot_r', c=normalized_CAM[0, :, modal, int(test_label[label_index])], s=100)
                 plt.colorbar()
                 plot_counter += 1
 
@@ -94,12 +100,12 @@ class GradCAMVisualizer:
             plt.show()
             
 
-    def vis_grad_cam_all_modal(self, test_sample, color=False, plot=True):
+    def vis_grad_cam_all_modal(self, test_df, color=False, plot=True):
             """
             Generates a Grad-CAM visualization for all modalities of a given test sample.
             
             Args:
-                test_sample (numpy.ndarray): The test sample to generate the visualization for.
+                test_df (numpy.ndarray): The test dataframe sample to generate the visualization for.
                 subject (str): The subject of the test sample.
                 class_name (str, optional): The class name to use for the visualization. Defaults to 'Relax_1'.
                 color (bool, optional): Whether to convert the image to grayscale before generating the visualization. 
@@ -111,10 +117,10 @@ class GradCAMVisualizer:
             """
             
             # Preprocess the test data
-            x_test, y_test, y_test_ori = self.preprocess_data(test_sample)
+            test_feature, test_label, test_label_ori = self.preprocess_data(test_df)
 
             # Convert image to grayscale if needed
-            img_gray = cv2.cvtColor(x_test, cv2.COLOR_BGR2GRAY) if color else x_test
+            img_gray = cv2.cvtColor(test_feature, cv2.COLOR_BGR2GRAY) if color else test_feature
 
             # Expand dimensions of the grayscale image
             img_gray = np.expand_dims(img_gray, axis=0)
@@ -140,7 +146,7 @@ class GradCAMVisualizer:
             heatmap /= max_heat
 
             # Convert the input image to RGB and normalize its values
-            img_rgb = cv2.cvtColor(x_test, cv2.COLOR_GRAY2RGB)
+            img_rgb = cv2.cvtColor(test_feature, cv2.COLOR_GRAY2RGB)
             img_rgb = (((img_rgb - img_rgb.min()) / (img_rgb.max() - img_rgb.min())) * 255).astype(np.uint8)
 
             squeezed_hm = np.squeeze(heatmap)
@@ -160,7 +166,7 @@ class GradCAMVisualizer:
 
                 axs1 = axs.imshow(cv2.cvtColor(normalized_hm_vis.transpose(1, 0, 2), cv2.COLOR_BGR2RGB), cmap='jet', 
                                 vmin=0, vmax=1)
-                axs.set_title(f'Normalized Grad-CAM | {y_test_ori.values[0]}')
+                axs.set_title(f'Normalized Grad-CAM | {test_label_ori.values[0]}')
                 fig.colorbar(axs1, shrink=0.38)
 
                 axs.set_aspect('equal')

@@ -1,12 +1,15 @@
-import os
-import streamlit as st
-import numpy as np
-import h5py
-import tensorflow as tf
-from src.constants import SAVED_MODEL_DIR, MODALS, LABELS, LABELS_DICT, ACTIVATION_LAYER_NAME, TRAIN_DATA_MEAN, TRAIN_DATA_STD
-from src.utils.grad_cam_pred import GradCAMVisualizer
-from src.utils.utils import load_array_from_hdf5, create_prediction_dataframe
 import datetime
+import os
+
+import h5py
+import numpy as np
+import streamlit as st
+import tensorflow as tf
+
+from src.constants import (ACTIVATION_LAYER_NAME, LABELS, LABELS_DICT, MODALS,
+                           SAVED_MODEL_DIR, TRAIN_DATA_MEAN, TRAIN_DATA_STD)
+from src.utils.grad_cam_pred import GradCAMVisualizer
+from src.utils.utils import create_prediction_dataframe, load_array_from_hdf5
 
 # Set the device to CPU to predict on local machine
 tf.config.set_visible_devices([], 'GPU')

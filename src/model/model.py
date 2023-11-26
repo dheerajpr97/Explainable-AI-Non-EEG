@@ -78,21 +78,42 @@ def train_cp(model, x_train, y_train, x_val, y_val, epochs, batch_size, model_pa
     - y_val (np.ndarray): Validation labels.
     - epochs (int): Number of epochs.
     - batch_size (int): Batch size.
-    - path (str): Path to save the model checkpoints.
+    - model_path (str): Path to save the model checkpoints.
 
     Returns:
     - keras.callbacks.History: History of the training process.
     """
-    lr_scheduler = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=25, min_lr=0.000001)
-    early_stopping = keras.callbacks.EarlyStopping(monitor='val_loss', patience=50, restore_best_weights=True)
-    model_checkpoint_callback = keras.callbacks.ModelCheckpoint(filepath=model_path, 
-                                                                monitor='val_accuracy', save_weights_only=True, 
-                                                                mode='max', save_best_only=True)
+    # Set up callbacks for the training process
+    lr_scheduler = keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss',
+        factor=0.5,
+        patience=25,
+        min_lr=0.000001
+    )
+    early_stopping = keras.callbacks.EarlyStopping(
+        monitor='val_loss',
+        patience=50,
+        restore_best_weights=True
+    )
+    model_checkpoint_callback = keras.callbacks.ModelCheckpoint(
+        filepath=model_path,
+        monitor='val_accuracy',
+        save_weights_only=True,
+        mode='max',
+        save_best_only=True
+    )
     
     print('Training...')
 
-    history = model.model.fit(x_train, y_train, validation_data=(x_val, y_val), epochs=epochs, batch_size=batch_size, 
-                              callbacks=[lr_scheduler, early_stopping, model_checkpoint_callback])
+    # Train the model with the specified parameters and callbacks
+    history = model.model.fit(
+        x_train,
+        y_train,
+        validation_data=(x_val, y_val),
+        epochs=epochs,
+        batch_size=batch_size,
+        callbacks=[lr_scheduler, early_stopping, model_checkpoint_callback]
+    )
 
     # Save the model checkpoints
     if not os.path.exists(model_path):

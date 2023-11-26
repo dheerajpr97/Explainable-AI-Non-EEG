@@ -1,6 +1,7 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
+
 
 class TrainTestSplitter:
     def __init__(self, subjects, labels):
@@ -35,19 +36,19 @@ class TrainTestSplitter:
             # Loop through each label
             for j in range(len(self.labels)):
                 # Get the data for the current subject and label
-                data_all = df[(df['Subject'] == self.subjects[i]) & (df['Label_ori'] == self.labels[j])]['Data'].values
-                data_all = np.array([np.array(xi) for xi in data_all])
+                data = df[(df['Subject'] == self.subjects[i]) & (df['Label_ori'] == self.labels[j])]['Data'].values
+                data = np.array([np.array(xi) for xi in data])
 
                 # Select the test data based on the segment index and number of segments
                 if samp_freq == 1:
                     #print('Sampling frequency is 1')
-                    data_test = data_all[seg_index:(seg_index) + num_seg] 
+                    data_test = data[seg_index:(seg_index) + num_seg] 
                 elif samp_freq == 8: # 
                     #print('Sampling frequency is 8')
-                    data_test = data_all[seg_index*samp_freq:(seg_index*samp_freq) + num_seg]
+                    data_test = data[seg_index*samp_freq:(seg_index*samp_freq) + num_seg]
 
                 # Remove the test data from the training data
-                data_train = np.delete(data_all, seg_index, axis=0)
+                data_train = np.delete(data, seg_index, axis=0)
 
                 # Create DataFrames for the train and test data
                 df_one_train = self.create_dataframe(data_train)
@@ -91,6 +92,7 @@ class TrainTestSplitter:
         df_train = pd.concat([df_train, df_one_train]).reset_index(drop=True)
         df_test = pd.concat([df_test, df_one_test]).reset_index(drop=True)
 
+        # Return the train and test DataFrames
         return df_train, df_test
 
     def create_dataframe(self, data):
